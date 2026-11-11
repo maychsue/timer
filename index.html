@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Focus Timer</title>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        :root {
+            --bg: #ffffff;
+            --text: #111111;
+            --sub: #888888;
+            --border: #f0f0f0;
+            --accent: #000000;
+        }
+
+        [data-theme="dark"] {
+            --bg: #0d0d0d;
+            --text: #f3f3f3;
+            --sub: #777777;
+            --border: #1f1f1f;
+            --accent: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 32px 24px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* 상단 헤더 (미니멀) */
+        header {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+
+        .util-btns {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-weight: 500;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .icon-btn:hover, .icon-btn.active { opacity: 1; }
+
+        /* 메인 타이머 디스플레이 (블록 제거, 텍스트 중심) */
+        main {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            margin: auto 0;
+        }
+
+        .status-text {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--sub);
+            margin-bottom: 24px;
+            letter-spacing: -0.3px;
+        }
+
+        .time-number {
+            font-size: 5rem;
+            font-weight: 700;
+            letter-spacing: -3px;
+            line-height: 1;
+            margin-bottom: 32px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* 인라인 설정 (타이머 변경용 숨김/나타남) */
+        .inline-settings {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            font-size: 0.9rem;
+            color: var(--sub);
+        }
+
+        .inline-settings input {
+            background: none;
+            border: none;
+            border-bottom: 1px solid var(--sub);
+            color: var(--text);
+            width: 36px;
+            text-align: center;
+            font-size: 0.9rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        /* 컨트롤 버튼 (텍스트 버튼 스타일) */
+        .controls {
+            display: flex;
+            gap: 24px;
+            align-items: center;
+        }
+
+        .ctrl-btn {
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text);
+            cursor: pointer;
+            padding: 8px 16px;
+            opacity: 0.8;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .ctrl-btn:active { transform: scale(0.95); }
+        .ctrl-btn.primary { opacity: 1; }
+
+        /* 힐링 메시지 영역 */
+        .healing-area {
+            display: none;
+            max-width: 360px;
+            animation: fadeIn 0.3s ease;
+        }
+        .healing-area.show { display: block; }
+
+        .healing-quote {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            font-weight: 400;
+            color: var(--text);
+            margin-bottom: 20px;
+            letter-spacing: -0.3px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 하단 네비게이션바 (최소화) */
+        nav {
+            width: 100%;
+            max-width: 400px;
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border);
+        }
+
+        .nav-tab {
+            background: none;
+            border: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--sub);
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .nav-tab.active {
+            color: var(--text);
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body data-theme="light">
+
+    <!-- 상단 -->
+    <header>
+        <div class="logo">FOCUS</div>
+        <div class="util-btns">
+            <button class="icon-btn" id="themeBtn">Dark</button>
+        </div>
+    </header>
+
+    <!-- 중앙 메인 -->
+    <main>
+        <!-- 타이머/초시계 뷰 -->
+        <div id="activeView">
+            <div class="status-text" id="statusLabel">집중 시간</div>
+
+            <!-- 타이머 설정 입력 (타이머 탭일 때만) -->
+            <div class="inline-settings" id="settingInputs">
+                <span>공부 <input type="number" id="studyInput" value="25" min="1">분</span>
+                <span>·</span>
+                <span>휴식 <input type="number" id="breakInput" value="5" min="1">분</span>
+            </div>
+
+            <div class="time-number" id="timeDisplay">25:00</div>
+
+            <div class="controls">
+                <button class="ctrl-btn" id="resetBtn">초기화</button>
+                <button class="ctrl-btn primary" id="startBtn">시작</button>
+            </div>
+        </div>
+
+        <!-- 힐링 뷰 (마음 쉼터) -->
+        <div id="healingView" class="healing-area">
+            <div class="status-text">마음 쉼터</div>
+            <p class="healing-quote" id="quoteText">"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요."</p>
+            <button class="ctrl-btn primary" id="nextQuoteBtn" style="font-size: 0.85rem; opacity: 0.6;">다른 글귀 보기</button>
+        </div>
+    </main>
+
+    <!-- 하단 탭 시스템 -->
+    <nav>
+        <button class="nav-tab active" data-target="timer">타이머</button>
+        <button class="nav-tab" data-target="stopwatch">초시계</button>
+        <button class="nav-tab" data-target="healing">마음 쉼터</button>
+    </nav>
+
+    <script>
+        // 테마 전환
+        const themeBtn = document.getElementById('themeBtn');
+        const body = document.body;
+        themeBtn.addEventListener('click', () => {
+            if(body.getAttribute('data-theme') === 'light') {
+                body.setAttribute('data-theme', 'dark');
+                themeBtn.textContent = 'Light';
+            } else {
+                body.setAttribute('data-theme', 'light');
+                themeBtn.textContent = 'Dark';
+            }
+        });
+
+        // 탭 및 모드 관리
+        const navTabs = document.querySelectorAll('.nav-tab');
+        const activeView = document.getElementById('activeView');
+        const healingView = document.getElementById('healingView');
+        const statusLabel = document.getElementById('statusLabel');
+        const settingInputs = document.getElementById('settingInputs');
+        
+        let currentMode = 'timer'; // 'timer', 'stopwatch', 'healing'
+
+        navTabs.forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                navTabs.forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+
+                const target = e.target.getAttribute('data-target');
+                currentMode = target;
+                resetTimer();
+
+                if(target === 'healing') {
+                    activeView.classList.add('hidden');
+                    healingView.classList.add('show');
+                } else {
+                    healingView.classList.remove('show');
+                    activeView.classList.remove('hidden');
+
+                    if(target === 'timer') {
+                        settingInputs.style.display = 'flex';
+                        statusLabel.textContent = '집중 시간';
+                        updateDisplay(parseInt(document.getElementById('studyInput').value) * 60);
+                    } else {
+                        settingInputs.style.display = 'none';
+                        statusLabel.textContent = '초시계';
+                        updateDisplay(0);
+                    }
+                }
+            });
+        });
+
+        // 타이머 엔진
+        let timerId = null;
+        let totalSec = 25 * 60;
+        let isRunning = false;
+        let isStudy = true;
+
+        const timeDisplay = document.getElementById('timeDisplay');
+        const startBtn = document.getElementById('startBtn');
+        const resetBtn = document.getElementById('resetBtn');
+
+        function updateDisplay(sec) {
+            const m = Math.floor(sec / 60);
+            const s = sec % 60;
+            timeDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        startBtn.addEventListener('click', () => {
+            if(!isRunning) {
+                if(currentMode === 'timer' && totalSec === 0) {
+                    totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                }
+                isRunning = true;
+                startBtn.textContent = '일시정지';
+                
+                timerId = setInterval(() => {
+                    if(currentMode === 'timer') {
+                        if(totalSec > 0) {
+                            totalSec--;
+                            updateDisplay(totalSec);
+                        } else {
+                            if(isStudy) {
+                                alert('집중 시간이 끝났어요. 가벼운 휴식을 시작하세요.');
+                                isStudy = false;
+                                statusLabel.textContent = '휴식 시간';
+                                totalSec = parseInt(document.getElementById('breakInput').value) * 60;
+                            } else {
+                                alert('휴식이 끝났어요. 다시 집중해볼까요?');
+                                isStudy = true;
+                                statusLabel.textContent = '집중 시간';
+                                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                            }
+                        }
+                    } else if(currentMode === 'stopwatch') {
+                        totalSec++;
+                        updateDisplay(totalSec);
+                    }
+                }, 1000);
+            } else {
+                isRunning = false;
+                startBtn.textContent = '시작';
+                clearInterval(timerId);
+            }
+        });
+
+        function resetTimer() {
+            isRunning = false;
+            clearInterval(timerId);
+            startBtn.textContent = '시작';
+            if(currentMode === 'timer') {
+                isStudy = true;
+                statusLabel.textContent = '집중 시간';
+                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                updateDisplay(totalSec);
+            } else if(currentMode === 'stopwatch') {
+                totalSec = 0;
+                updateDisplay(totalSec);
+            }
+        }
+        resetBtn.addEventListener('click', resetTimer);
+
+        document.getElementById('studyInput').addEventListener('change', () => {
+            if(!isRunning && currentMode === 'timer' && isStudy) {
+                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                updateDisplay(totalSec);
+            }
+        });
+
+        // 이탈 방지
+        window.addEventListener('beforeunload', (e) => {
+            e.preventDefault();
+            e.returnValue = '';
+        });
+
+        // 힐링 명언
+        const quotes = [
+            "\"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요.\"",
+            "\"지금 쌓아가는 작은 노력들은 결코 사라지지 않아요.\"",
+            "\"완벽해야 할 필요는 없어요. 모르는 것은 채워나가면 돼요.\"",
+            "\"잠시 숨을 깊게 내쉬고 어깨의 힘을 빼보세요.\""
+        ];
+        const quoteText = document.getElementById('quoteText');
+        document.getElementById('nextQuoteBtn').addEventListener('click', () => {
+            const rand = Math.floor(Math.random() * quotes.length);
+            quoteText.textContent = quotes[rand];
+        });
+    </script>
+</body>
+</html>
