@@ -319,7 +319,6 @@
             font-weight: 700;
         }
 
-        /* 홈 화면 구석의 비밀 관리자 버튼 & 관리자 대시보드 스타일 */
         .admin-footer-link {
             width: 100%;
             max-width: 360px;
@@ -340,7 +339,6 @@
         }
         .secret-admin-btn:hover { opacity: 1; }
 
-        /* 관리자 대시보드 전용 레이아웃 */
         #adminDashboard {
             width: 100%;
             max-width: 360px;
@@ -398,12 +396,77 @@
         }
         .admin-list li:last-child { border-bottom: none; }
 
+        /* 관리자 비밀번호 모달 스타일 */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .modal-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            padding: 24px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        }
+
+        .modal-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .modal-desc {
+            font-size: 0.8rem;
+            color: var(--sub);
+            margin-bottom: 16px;
+        }
+
+        .modal-card input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            background: var(--card-bg);
+            color: var(--text);
+            border-radius: 6px;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 16px;
+            outline: none;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btns button {
+            flex: 1;
+            padding: 8px 0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body data-theme="light">
 
-    <!-- 상단 헤더 (학생용) -->
+    <!-- 학생용 상단 헤더 -->
     <header id="studentHeader">
         <div class="logo">FOCUS</div>
         <div class="util-btns">
@@ -414,7 +477,7 @@
         </div>
     </header>
 
-    <!-- 상단 헤더 (관리자용) -->
+    <!-- 관리자용 상단 헤더 -->
     <header id="adminHeader" class="hidden">
         <div class="logo">🔒 선생님 대시보드</div>
         <button class="ctrl-btn" id="backToHomeBtn" style="font-size: 0.8rem; padding: 6px 12px;">홈으로 가기</button>
@@ -504,7 +567,7 @@
         </div>
     </main>
 
-    <!-- 하단 메뉴 탭 (학생용) -->
+    <!-- 학생용 하단 메뉴 탭 -->
     <nav id="studentNav" aria-label="하단 메뉴 탭">
         <button class="nav-tab active" data-target="timer">타이머</button>
         <button class="nav-tab" data-target="stopwatch">초시계</button>
@@ -513,27 +576,91 @@
         <button class="nav-tab" data-target="healing">쉼터</button>
     </nav>
 
-    <!-- 홈 화면 맨 아래 구석 비밀 관리자 버튼 -->
+    <!-- 비밀 관리자 진입 버튼 -->
     <div class="admin-footer-link" id="adminFooterLink">
         <button class="secret-admin-btn" id="goToAdminBtn">🔐 관리자</button>
     </div>
 
+    <!-- 관리자 비밀번호 확인 모달 -->
+    <div id="passwordModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-title">🔐 관리자 인증</div>
+            <div class="modal-desc">관리자 비밀번호를 입력해 주세요.</div>
+            <input type="password" id="adminPasswordInput" placeholder="비밀번호 입력">
+            <div class="modal-btns">
+                <button id="cancelAuthBtn" style="background: var(--card-bg); border: 1px solid var(--border); color: var(--text);">취소</button>
+                <button id="submitAuthBtn" style="background: var(--accent); color: var(--bg); border: none;">확인</button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        // 라우팅 및 화면 전환 제어 (#admin 감지)
+        // ----------------------------------------------------------------
+        // 0. 관리자 암호 설정 및 연동 준비 (추후 API 연동 시 이 부분을 교체)
+        // ----------------------------------------------------------------
+        const ADMIN_PASSWORD = "1234"; // 임시 비밀번호
+
+        function verifyAdminPassword(inputPwd) {
+            // 추후 서버 인증 연동 시 fetch() 로직으로 손쉽게 대체 가능합니다.
+            return inputPwd === ADMIN_PASSWORD;
+        }
+
+        // 라우팅 및 관리자 인증 제어
         const studentHome = document.getElementById('studentHome');
         const adminDashboard = document.getElementById('adminDashboard');
         const studentHeader = document.getElementById('studentHeader');
         const adminHeader = document.getElementById('adminHeader');
         const studentNav = document.getElementById('studentNav');
         const adminFooterLink = document.getElementById('adminFooterLink');
+        const passwordModal = document.getElementById('passwordModal');
+        const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+        let isAdminAuthenticated = sessionStorage.getItem('is_admin_authenticated') === 'true';
 
         function checkRoute() {
             if (window.location.hash === '#admin') {
-                showAdminView();
+                if (isAdminAuthenticated) {
+                    showAdminView();
+                } else {
+                    promptPassword();
+                }
             } else {
                 showStudentView();
             }
         }
+
+        function promptPassword() {
+            passwordModal.classList.remove('hidden');
+            adminPasswordInput.value = '';
+            adminPasswordInput.focus();
+        }
+
+        function hidePasswordModal() {
+            passwordModal.classList.add('hidden');
+        }
+
+        document.getElementById('submitAuthBtn').addEventListener('click', () => {
+            const pwd = adminPasswordInput.value.trim();
+            if (verifyAdminPassword(pwd)) {
+                isAdminAuthenticated = true;
+                sessionStorage.setItem('is_admin_authenticated', 'true');
+                hidePasswordModal();
+                showAdminView();
+            } else {
+                alert('비밀번호가 올바르지 않습니다.');
+                adminPasswordInput.value = '';
+                adminPasswordInput.focus();
+            }
+        });
+
+        adminPasswordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') document.getElementById('submitAuthBtn').click();
+        });
+
+        document.getElementById('cancelAuthBtn').addEventListener('click', () => {
+            hidePasswordModal();
+            window.location.hash = '';
+        });
 
         function showAdminView() {
             studentHome.classList.add('hidden');
@@ -549,6 +676,7 @@
         function showStudentView() {
             adminDashboard.style.display = 'none';
             adminHeader.classList.add('hidden');
+            hidePasswordModal();
 
             studentHome.classList.remove('hidden');
             studentHeader.classList.remove('hidden');
@@ -566,7 +694,7 @@
 
         window.addEventListener('hashchange', checkRoute);
 
-        // 관리자 대시보드 데이터 로드 함수
+        // 관리자 대시보드 데이터 로드
         function loadAdminData() {
             const todos = JSON.parse(localStorage.getItem('focus_todos') || '[]');
             const memos = JSON.parse(localStorage.getItem('focus_memos') || '[]');
@@ -574,7 +702,6 @@
             document.getElementById('adminTodoCount').textContent = `${todos.length}개`;
             document.getElementById('adminMemoCount').textContent = `${memos.length}개`;
 
-            // 최근 기록 (최신순 최대 5개)
             const recentTodoUl = document.getElementById('adminRecentTodoList');
             recentTodoUl.innerHTML = '';
             const recentTodos = [...todos].reverse().slice(0, 5);
@@ -588,7 +715,6 @@
                 });
             }
 
-            // 전체 할 일 목록
             const allTodoUl = document.getElementById('adminAllTodoList');
             allTodoUl.innerHTML = '';
             if (todos.length === 0) {
@@ -601,7 +727,6 @@
                 });
             }
 
-            // 전체 잡생각 메모 목록
             const allMemoUl = document.getElementById('adminAllMemoList');
             allMemoUl.innerHTML = '';
             if (memos.length === 0) {
@@ -615,7 +740,6 @@
             }
         }
 
-        // 전체 데이터 초기화 버튼
         document.getElementById('clearDataBtn').addEventListener('click', () => {
             if (confirm('모든 학생 기록을 초기화하시겠습니까?')) {
                 localStorage.removeItem('focus_todos');
@@ -625,7 +749,7 @@
             }
         });
 
-        // 글자 크기 조절 기능
+        // 1. 글자 크기 조절
         let currentScale = parseFloat(localStorage.getItem('focus_font_scale')) || 1.0;
         function updateFontScale(scale) {
             currentScale = Math.min(Math.max(scale, 0.8), 1.3);
@@ -637,7 +761,7 @@
         document.getElementById('fontIncBtn').addEventListener('click', () => updateFontScale(currentScale + 0.1));
         document.getElementById('fontDecBtn').addEventListener('click', () => updateFontScale(currentScale - 0.1));
 
-        // 테마 관리
+        // 2. 테마 관리
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
 
@@ -652,7 +776,7 @@
             setTheme(body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
         });
 
-        // 알림 설정
+        // 3. 알림 설정
         const notiBtn = document.getElementById('notiBtn');
         notiBtn.addEventListener('click', () => {
             if ('Notification' in window) {
@@ -671,7 +795,7 @@
             }
         }
 
-        // 백색소음 합성엔진
+        // 4. 백색소음 합성엔진
         let audioCtx = null;
         let noiseNode = null;
         let activeNoise = null;
@@ -722,7 +846,7 @@
             else { playNoise('wave'); waveNoiseBtn.classList.add('active'); rainNoiseBtn.classList.remove('active'); }
         });
 
-        // 카테고리 태그 선택
+        // 5. 카테고리 태그 선택
         let selectedCategory = '공부';
         document.querySelectorAll('.cat-chip').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -735,7 +859,7 @@
             });
         });
 
-        // 탭 시스템
+        // 6. 탭 시스템
         const navTabs = document.querySelectorAll('.nav-tab');
         const activeView = document.getElementById('activeView');
         const panels = {
@@ -778,7 +902,7 @@
             });
         });
 
-        // 타이머 엔진
+        // 7. 타이머 엔진
         let timerId = null;
         let totalSec = 25 * 60;
         let isRunning = false;
@@ -884,7 +1008,7 @@
             }
         });
 
-        // 리스트 관리 (할 일 / 메모)
+        // 8. 할 일 / 메모 리스트 관리
         function setupList(inputId, btnId, listId, storageKey) {
             const input = document.getElementById(inputId);
             const btn = document.getElementById(btnId);
@@ -940,7 +1064,7 @@
         setupList('todoInput', 'addTodoBtn', 'todoList', 'focus_todos');
         setupList('memoInput', 'addMemoBtn', 'memoList', 'focus_memos');
 
-        // 명언 기능
+        // 9. 명언 기능
         const quotes = [
             "\"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요.\"",
             "\"지금 쌓아가는 작은 노력들은 결코 사라지지 않아요.\"",
@@ -953,7 +1077,7 @@
             quoteText.textContent = quotes[rand];
         });
 
-        // 페이지 최초 로드 시 해시 체크
+        // 최초 실행 시 경로 확인
         checkRoute();
     </script>
 </body>
