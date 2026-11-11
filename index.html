@@ -9,17 +9,20 @@
         :root {
             --bg: #ffffff;
             --text: #111111;
-            --sub: #888888;
-            --border: #f0f0f0;
+            --sub: #666666;
+            --border: #e0e0e0;
             --accent: #000000;
+            --card-bg: #f4f4f4;
+            --font-scale: 1rem;
         }
 
         [data-theme="dark"] {
-            --bg: #0d0d0d;
+            --bg: #121212;
             --text: #f3f3f3;
-            --sub: #777777;
-            --border: #1f1f1f;
+            --sub: #a0a0a0;
+            --border: #2a2a2a;
             --accent: #ffffff;
+            --card-bg: #1e1e1e;
         }
 
         * {
@@ -33,51 +36,60 @@
         body {
             background-color: var(--bg);
             color: var(--text);
-            height: 100vh;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 32px 24px;
+            padding: 24px 16px;
+            font-size: var(--font-scale);
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 상단 헤더 (미니멀) */
+        /* 키보드 접근성 포커스 스타일 */
+        button:focus-visible, input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
         header {
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            margin-bottom: 16px;
         }
 
         .logo {
-            font-size: 0.9rem;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 700;
             letter-spacing: -0.5px;
         }
 
         .util-btns {
             display: flex;
-            gap: 16px;
+            gap: 10px;
+            align-items: center;
         }
 
         .icon-btn {
             background: none;
-            border: none;
+            border: 1px solid var(--border);
             color: var(--text);
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             cursor: pointer;
-            font-weight: 500;
-            opacity: 0.6;
-            transition: opacity 0.2s;
+            font-weight: 600;
+            padding: 6px 10px;
+            border-radius: 6px;
+            opacity: 0.8;
+            transition: opacity 0.2s, background 0.2s;
         }
-        .icon-btn:hover, .icon-btn.active { opacity: 1; }
+        .icon-btn:hover, .icon-btn.active { opacity: 1; background: var(--card-bg); }
 
-        /* 메인 타이머 디스플레이 (블록 제거, 텍스트 중심) */
         main {
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -86,79 +98,196 @@
         }
 
         .status-text {
-            font-size: 0.85rem;
-            font-weight: 500;
+            font-size: calc(var(--font-scale) * 0.9);
+            font-weight: 600;
             color: var(--sub);
-            margin-bottom: 24px;
+            margin-bottom: 12px;
             letter-spacing: -0.3px;
+        }
+
+        .category-select {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .cat-chip {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: calc(var(--font-scale) * 0.85);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .cat-chip.active {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+            font-weight: 600;
         }
 
         .time-number {
-            font-size: 5rem;
+            font-size: 4.2rem;
             font-weight: 700;
-            letter-spacing: -3px;
+            letter-spacing: -2px;
             line-height: 1;
-            margin-bottom: 32px;
+            margin-bottom: 20px;
             font-variant-numeric: tabular-nums;
         }
 
-        /* 인라인 설정 (타이머 변경용 숨김/나타남) */
         .inline-settings {
             display: flex;
-            gap: 12px;
-            margin-bottom: 32px;
-            font-size: 0.9rem;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: calc(var(--font-scale) * 0.9);
             color: var(--sub);
-        }
-
-        .inline-settings input {
-            background: none;
-            border: none;
-            border-bottom: 1px solid var(--sub);
-            color: var(--text);
-            width: 36px;
-            text-align: center;
-            font-size: 0.9rem;
-            font-weight: 600;
-            outline: none;
-        }
-
-        /* 컨트롤 버튼 (텍스트 버튼 스타일) */
-        .controls {
-            display: flex;
-            gap: 24px;
             align-items: center;
         }
 
+        .inline-settings input {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            width: 44px;
+            height: 36px;
+            text-align: center;
+            font-size: calc(var(--font-scale) * 0.9);
+            font-weight: 600;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
         .ctrl-btn {
-            background: none;
-            border: none;
-            font-size: 1rem;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            font-size: calc(var(--font-scale) * 0.95);
             font-weight: 600;
             color: var(--text);
             cursor: pointer;
-            padding: 8px 16px;
-            opacity: 0.8;
+            padding: 10px 20px;
+            border-radius: 8px;
             transition: opacity 0.2s, transform 0.1s;
         }
         .ctrl-btn:active { transform: scale(0.95); }
-        .ctrl-btn.primary { opacity: 1; }
+        .ctrl-btn.primary {
+            background: var(--accent);
+            color: var(--bg);
+            border-color: var(--accent);
+        }
 
-        /* 힐링 메시지 영역 */
-        .healing-area {
+        .noise-control {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: calc(var(--font-scale) * 0.8);
+            color: var(--sub);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .noise-btn {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: calc(var(--font-scale) * 0.75);
+        }
+        .noise-btn.active {
+            border-color: var(--accent);
+            font-weight: 600;
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .panel {
+            width: 100%;
             display: none;
-            max-width: 360px;
+            text-align: left;
             animation: fadeIn 0.3s ease;
         }
-        .healing-area.show { display: block; }
+        .panel.show { display: block; }
 
+        .healing-area { text-align: center; }
         .healing-quote {
-            font-size: 1.05rem;
-            line-height: 1.6;
+            font-size: calc(var(--font-scale) * 1rem);
+            line-height: 1.5;
             font-weight: 400;
             color: var(--text);
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             letter-spacing: -0.3px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .input-group input {
+            flex: 1;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: calc(var(--font-scale) * 0.85);
+            outline: none;
+        }
+
+        .input-group button {
+            background: var(--accent);
+            color: var(--bg);
+            border: none;
+            padding: 0 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: calc(var(--font-scale) * 0.85);
+            font-weight: 600;
+        }
+
+        .item-list {
+            list-style: none;
+            max-height: 180px;
+            overflow-y: auto;
+        }
+
+        .item-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 8px;
+            border-bottom: 1px solid var(--border);
+            font-size: calc(var(--font-scale) * 0.85);
+        }
+
+        .item-list li.done span {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+
+        .del-btn {
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text);
+            cursor: pointer;
+            font-size: calc(var(--font-scale) * 0.75);
+            padding: 4px 8px;
+            border-radius: 4px;
         }
 
         @keyframes fadeIn {
@@ -166,29 +295,29 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* 하단 네비게이션바 (최소화) */
         nav {
             width: 100%;
-            max-width: 400px;
+            max-width: 360px;
             display: flex;
-            justify-content: center;
-            gap: 28px;
-            padding-top: 20px;
+            justify-content: space-around;
+            padding-top: 14px;
             border-top: 1px solid var(--border);
+            margin-top: 16px;
         }
 
         .nav-tab {
             background: none;
             border: none;
-            font-size: 0.85rem;
+            font-size: calc(var(--font-scale) * 0.8);
             font-weight: 500;
             color: var(--sub);
             cursor: pointer;
+            padding: 6px 8px;
             transition: color 0.2s;
         }
         .nav-tab.active {
             color: var(--text);
-            font-weight: 600;
+            font-weight: 700;
         }
 
         .hidden { display: none !important; }
@@ -196,72 +325,204 @@
 </head>
 <body data-theme="light">
 
-    <!-- 상단 -->
     <header>
         <div class="logo">FOCUS</div>
         <div class="util-btns">
-            <button class="icon-btn" id="themeBtn">Dark</button>
+            <button class="icon-btn" id="fontIncBtn" aria-label="글자 크기 크게">A+</button>
+            <button class="icon-btn" id="fontDecBtn" aria-label="글자 크기 작게">A-</button>
+            <button class="icon-btn" id="notiBtn" aria-label="브라우저 알림 허용">알림</button>
+            <button class="icon-btn" id="themeBtn" aria-label="다크모드 전환">Dark</button>
         </div>
     </header>
 
-    <!-- 중앙 메인 -->
     <main>
-        <!-- 타이머/초시계 뷰 -->
         <div id="activeView">
             <div class="status-text" id="statusLabel">집중 시간</div>
 
-            <!-- 타이머 설정 입력 (타이머 탭일 때만) -->
-            <div class="inline-settings" id="settingInputs">
-                <span>공부 <input type="number" id="studyInput" value="25" min="1">분</span>
-                <span>·</span>
-                <span>휴식 <input type="number" id="breakInput" value="5" min="1">분</span>
+            <div class="category-select" id="categorySelect" aria-label="집중 카테고리 선택">
+                <button class="cat-chip active" data-cat="공부">공부</button>
+                <button class="cat-chip" data-cat="코딩">코딩</button>
+                <button class="cat-chip" data-cat="독서">독서</button>
+                <button class="cat-chip" data-cat="업무">업무</button>
             </div>
 
-            <div class="time-number" id="timeDisplay">25:00</div>
+            <div class="inline-settings" id="settingInputs">
+                <span>공부 <input type="number" id="studyInput" value="25" min="1" max="180" aria-label="공부 시간 분">분</span>
+                <span>·</span>
+                <span>휴식 <input type="number" id="breakInput" value="5" min="1" max="60" aria-label="휴식 시간 분">분</span>
+            </div>
+
+            <div class="time-number" id="timeDisplay" aria-live="polite">25:00</div>
 
             <div class="controls">
                 <button class="ctrl-btn" id="resetBtn">초기화</button>
                 <button class="ctrl-btn primary" id="startBtn">시작</button>
             </div>
+
+            <div class="noise-control" aria-label="백색소음 선택">
+                <span>백색소음:</span>
+                <button class="noise-btn" id="rainNoiseBtn">빗소리</button>
+                <button class="noise-btn" id="waveNoiseBtn">파도소리</button>
+            </div>
         </div>
 
-        <!-- 힐링 뷰 (마음 쉼터) -->
-        <div id="healingView" class="healing-area">
+        <div id="todoPanel" class="panel">
+            <div class="status-text" style="text-align: center;">할 일 목록</div>
+            <div class="input-group">
+                <input type="text" id="todoInput" placeholder="오늘 집중할 작업을 적으세요..." aria-label="할 일 입력">
+                <button id="addTodoBtn" aria-label="할 일 추가">추가</button>
+            </div>
+            <ul class="item-list" id="todoList"></ul>
+        </div>
+
+        <div id="memoPanel" class="panel">
+            <div class="status-text" style="text-align: center;">잡생각 메모장</div>
+            <div class="input-group">
+                <input type="text" id="memoInput" placeholder="생각을 적어두고 비우세요..." aria-label="잡생각 입력">
+                <button id="addMemoBtn" aria-label="잡생각 기록">기록</button>
+            </div>
+            <ul class="item-list" id="memoList"></ul>
+        </div>
+
+        <div id="healingPanel" class="panel healing-area">
             <div class="status-text">마음 쉼터</div>
             <p class="healing-quote" id="quoteText">"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요."</p>
-            <button class="ctrl-btn primary" id="nextQuoteBtn" style="font-size: 0.85rem; opacity: 0.6;">다른 글귀 보기</button>
+            <button class="ctrl-btn primary" id="nextQuoteBtn" style="font-size: 0.85rem; opacity: 0.8;">다른 글귀 보기</button>
         </div>
     </main>
 
-    <!-- 하단 탭 시스템 -->
-    <nav>
+    <nav aria-label="하단 메뉴 탭">
         <button class="nav-tab active" data-target="timer">타이머</button>
         <button class="nav-tab" data-target="stopwatch">초시계</button>
-        <button class="nav-tab" data-target="healing">마음 쉼터</button>
+        <button class="nav-tab" data-target="todo">할 일</button>
+        <button class="nav-tab" data-target="memo">메모</button>
+        <button class="nav-tab" data-target="healing">쉼터</button>
     </nav>
 
     <script>
-        // 테마 전환
+        // 글자 크기 조절 기능
+        let currentScale = parseFloat(localStorage.getItem('focus_font_scale')) || 1.0;
+        function updateFontScale(scale) {
+            currentScale = Math.min(Math.max(scale, 0.8), 1.3);
+            document.documentElement.style.setProperty('--font-scale', `${currentScale}rem`);
+            localStorage.setItem('focus_font_scale', currentScale);
+        }
+        updateFontScale(currentScale);
+
+        document.getElementById('fontIncBtn').addEventListener('click', () => updateFontScale(currentScale + 0.1));
+        document.getElementById('fontDecBtn').addEventListener('click', () => updateFontScale(currentScale - 0.1));
+
+        // 테마 관리
         const themeBtn = document.getElementById('themeBtn');
         const body = document.body;
+
+        function setTheme(theme) {
+            body.setAttribute('data-theme', theme);
+            themeBtn.textContent = theme === 'dark' ? 'Light' : 'Dark';
+            localStorage.setItem('focus_theme', theme);
+        }
+        setTheme(localStorage.getItem('focus_theme') || 'light');
+
         themeBtn.addEventListener('click', () => {
-            if(body.getAttribute('data-theme') === 'light') {
-                body.setAttribute('data-theme', 'dark');
-                themeBtn.textContent = 'Light';
-            } else {
-                body.setAttribute('data-theme', 'light');
-                themeBtn.textContent = 'Dark';
+            setTheme(body.getAttribute('data-theme') === 'light' ? 'dark' : 'light');
+        });
+
+        // 알림 설정
+        const notiBtn = document.getElementById('notiBtn');
+        notiBtn.addEventListener('click', () => {
+            if ('Notification' in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === 'granted') {
+                        alert('알림이 설정되었습니다.');
+                        notiBtn.style.opacity = '0.5';
+                    }
+                });
             }
         });
 
-        // 탭 및 모드 관리
+        function sendNotification(title, bodyText) {
+            if ('Notification' in window && Notification.permission === 'granted') {
+                new Notification(title, { body: bodyText });
+            }
+        }
+
+        // 백색소음 합성엔진
+        let audioCtx = null;
+        let noiseNode = null;
+        let activeNoise = null;
+
+        function playNoise(type) {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (noiseNode) stopNoise();
+
+            const bufferSize = audioCtx.sampleRate * 2;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const output = buffer.getChannelData(0);
+
+            let lastOut = 0.0;
+            for (let i = 0; i < bufferSize; i++) {
+                const white = Math.random() * 2 - 1;
+                output[i] = (lastOut + (0.02 * white)) / 1.02;
+                lastOut = output[i];
+                output[i] *= (type === 'rain' ? 3.5 : 2.5);
+            }
+
+            noiseNode = audioCtx.createBufferSource();
+            noiseNode.buffer = buffer;
+            noiseNode.loop = true;
+            noiseNode.connect(audioCtx.destination);
+            noiseNode.start();
+            activeNoise = type;
+        }
+
+        function stopNoise() {
+            if (noiseNode) {
+                noiseNode.stop();
+                noiseNode.disconnect();
+                noiseNode = null;
+                activeNoise = null;
+            }
+        }
+
+        const rainNoiseBtn = document.getElementById('rainNoiseBtn');
+        const waveNoiseBtn = document.getElementById('waveNoiseBtn');
+
+        rainNoiseBtn.addEventListener('click', () => {
+            if (activeNoise === 'rain') { stopNoise(); rainNoiseBtn.classList.remove('active'); }
+            else { playNoise('rain'); rainNoiseBtn.classList.add('active'); waveNoiseBtn.classList.remove('active'); }
+        });
+
+        waveNoiseBtn.addEventListener('click', () => {
+            if (activeNoise === 'wave') { stopNoise(); waveNoiseBtn.classList.remove('active'); }
+            else { playNoise('wave'); waveNoiseBtn.classList.add('active'); rainNoiseBtn.classList.remove('active'); }
+        });
+
+        // 카테고리 태그 선택
+        let selectedCategory = '공부';
+        document.querySelectorAll('.cat-chip').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('active'));
+                e.target.classList.add('active');
+                selectedCategory = e.target.dataset.cat;
+                if (!isRunning && currentMode === 'timer') {
+                    statusLabel.textContent = `${selectedCategory} 집중 시간`;
+                }
+            });
+        });
+
+        // 탭 시스템
         const navTabs = document.querySelectorAll('.nav-tab');
         const activeView = document.getElementById('activeView');
-        const healingView = document.getElementById('healingView');
+        const panels = {
+            todo: document.getElementById('todoPanel'),
+            memo: document.getElementById('memoPanel'),
+            healing: document.getElementById('healingPanel')
+        };
         const statusLabel = document.getElementById('statusLabel');
         const settingInputs = document.getElementById('settingInputs');
-        
-        let currentMode = 'timer'; // 'timer', 'stopwatch', 'healing'
+        const categorySelect = document.getElementById('categorySelect');
+
+        let currentMode = 'timer';
 
         navTabs.forEach(tab => {
             tab.addEventListener('click', (e) => {
@@ -270,24 +531,24 @@
 
                 const target = e.target.getAttribute('data-target');
                 currentMode = target;
-                resetTimer();
 
-                if(target === 'healing') {
-                    activeView.classList.add('hidden');
-                    healingView.classList.add('show');
-                } else {
-                    healingView.classList.remove('show');
+                activeView.classList.add('hidden');
+                Object.values(panels).forEach(p => p.classList.remove('show'));
+
+                if (target === 'timer' || target === 'stopwatch') {
                     activeView.classList.remove('hidden');
-
-                    if(target === 'timer') {
+                    if (target === 'timer') {
                         settingInputs.style.display = 'flex';
-                        statusLabel.textContent = '집중 시간';
-                        updateDisplay(parseInt(document.getElementById('studyInput').value) * 60);
+                        categorySelect.style.display = 'flex';
+                        statusLabel.textContent = `${selectedCategory} 집중 시간`;
                     } else {
                         settingInputs.style.display = 'none';
+                        categorySelect.style.display = 'none';
                         statusLabel.textContent = '초시계';
-                        updateDisplay(0);
                     }
+                    resetTimer();
+                } else if (panels[target]) {
+                    panels[target].classList.add('show');
                 }
             });
         });
@@ -301,6 +562,11 @@
         const timeDisplay = document.getElementById('timeDisplay');
         const startBtn = document.getElementById('startBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const studyInput = document.getElementById('studyInput');
+        const breakInput = document.getElementById('breakInput');
+
+        if (localStorage.getItem('focus_study_time')) studyInput.value = localStorage.getItem('focus_study_time');
+        if (localStorage.getItem('focus_break_time')) breakInput.value = localStorage.getItem('focus_break_time');
 
         function updateDisplay(sec) {
             const m = Math.floor(sec / 60);
@@ -308,33 +574,46 @@
             timeDisplay.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
         }
 
+        function setInputsDisabled(disabled) {
+            studyInput.disabled = disabled;
+            breakInput.disabled = disabled;
+        }
+
         startBtn.addEventListener('click', () => {
-            if(!isRunning) {
-                if(currentMode === 'timer' && totalSec === 0) {
-                    totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+            if (!isRunning) {
+                let studyVal = parseInt(studyInput.value) || 25;
+                if (studyVal < 1) studyVal = 1;
+                studyInput.value = studyVal;
+
+                if (currentMode === 'timer' && totalSec === 0) {
+                    totalSec = studyVal * 60;
                 }
+                
                 isRunning = true;
                 startBtn.textContent = '일시정지';
-                
+                setInputsDisabled(true);
+
                 timerId = setInterval(() => {
-                    if(currentMode === 'timer') {
-                        if(totalSec > 0) {
+                    if (currentMode === 'timer') {
+                        if (totalSec > 0) {
                             totalSec--;
                             updateDisplay(totalSec);
                         } else {
-                            if(isStudy) {
+                            if (isStudy) {
+                                sendNotification('집중 종료!', '고생하셨어요. 이제 달콤한 휴식을 시작하세요.');
                                 alert('집중 시간이 끝났어요. 가벼운 휴식을 시작하세요.');
                                 isStudy = false;
                                 statusLabel.textContent = '휴식 시간';
-                                totalSec = parseInt(document.getElementById('breakInput').value) * 60;
+                                totalSec = (parseInt(breakInput.value) || 5) * 60;
                             } else {
+                                sendNotification('휴식 종료!', '다시 집중할 시간입니다. 파이팅!');
                                 alert('휴식이 끝났어요. 다시 집중해볼까요?');
                                 isStudy = true;
-                                statusLabel.textContent = '집중 시간';
-                                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                                statusLabel.textContent = `${selectedCategory} 집중 시간`;
+                                totalSec = (parseInt(studyInput.value) || 25) * 60;
                             }
                         }
-                    } else if(currentMode === 'stopwatch') {
+                    } else if (currentMode === 'stopwatch') {
                         totalSec++;
                         updateDisplay(totalSec);
                     }
@@ -350,32 +629,93 @@
             isRunning = false;
             clearInterval(timerId);
             startBtn.textContent = '시작';
-            if(currentMode === 'timer') {
+            setInputsDisabled(false);
+
+            if (currentMode === 'timer') {
                 isStudy = true;
-                statusLabel.textContent = '집중 시간';
-                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
+                statusLabel.textContent = `${selectedCategory} 집중 시간`;
+                const studyVal = parseInt(studyInput.value) || 25;
+                totalSec = studyVal * 60;
                 updateDisplay(totalSec);
-            } else if(currentMode === 'stopwatch') {
+            } else if (currentMode === 'stopwatch') {
                 totalSec = 0;
-                updateDisplay(totalSec);
+                updateDisplay(0);
             }
         }
         resetBtn.addEventListener('click', resetTimer);
 
-        document.getElementById('studyInput').addEventListener('change', () => {
-            if(!isRunning && currentMode === 'timer' && isStudy) {
-                totalSec = parseInt(document.getElementById('studyInput').value) * 60;
-                updateDisplay(totalSec);
+        studyInput.addEventListener('change', () => {
+            localStorage.setItem('focus_study_time', studyInput.value);
+            if (!isRunning && currentMode === 'timer' && isStudy) resetTimer();
+        });
+        breakInput.addEventListener('change', () => {
+            localStorage.setItem('focus_break_time', breakInput.value);
+        });
+
+        window.addEventListener('beforeunload', (e) => {
+            if (isRunning) {
+                e.preventDefault();
+                e.returnValue = '';
             }
         });
 
-        // 이탈 방지
-        window.addEventListener('beforeunload', (e) => {
-            e.preventDefault();
-            e.returnValue = '';
-        });
+        // 리스트 관리 (할 일 / 메모)
+        function setupList(inputId, btnId, listId, storageKey) {
+            const input = document.getElementById(inputId);
+            const btn = document.getElementById(btnId);
+            const list = document.getElementById(listId);
 
-        // 힐링 명언
+            let items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+            function render() {
+                list.innerHTML = '';
+                items.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    if (item.done) li.classList.add('done');
+
+                    li.innerHTML = `
+                        <span style="cursor:pointer; flex:1; padding-right:8px;">${item.text}</span>
+                        <button class="del-btn" aria-label="삭제">삭제</button>
+                    `;
+
+                    li.querySelector('span').addEventListener('click', () => {
+                        items[index].done = !items[index].done;
+                        saveAndRender();
+                    });
+
+                    li.querySelector('.del-btn').addEventListener('click', () => {
+                        items.splice(index, 1);
+                        saveAndRender();
+                    });
+
+                    list.appendChild(li);
+                });
+            }
+
+            function saveAndRender() {
+                localStorage.setItem(storageKey, JSON.stringify(items));
+                render();
+            }
+
+            btn.addEventListener('click', () => {
+                if (input.value.trim() !== '') {
+                    items.push({ text: input.value.trim(), done: false });
+                    input.value = '';
+                    saveAndRender();
+                }
+            });
+
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') btn.click();
+            });
+
+            render();
+        }
+
+        setupList('todoInput', 'addTodoBtn', 'todoList', 'focus_todos');
+        setupList('memoInput', 'addMemoBtn', 'memoList', 'focus_memos');
+
+        // 명언 기능
         const quotes = [
             "\"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요.\"",
             "\"지금 쌓아가는 작은 노력들은 결코 사라지지 않아요.\"",
