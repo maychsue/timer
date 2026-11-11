@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Focus Timer</title>
+    <title>Focus Timer & Dashboard</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
         :root {
@@ -41,12 +41,11 @@
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 24px 16px;
+            padding: 24px 16px 12px 16px;
             font-size: var(--font-scale);
             transition: background 0.3s, color 0.3s;
         }
 
-        /* 키보드 접근성 포커스 스타일 */
         button:focus-visible, input:focus-visible {
             outline: 2px solid var(--accent);
             outline-offset: 2px;
@@ -69,7 +68,7 @@
 
         .util-btns {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
         }
 
@@ -302,7 +301,7 @@
             justify-content: space-around;
             padding-top: 14px;
             border-top: 1px solid var(--border);
-            margin-top: 16px;
+            margin-top: 12px;
         }
 
         .nav-tab {
@@ -320,12 +319,92 @@
             font-weight: 700;
         }
 
+        /* 홈 화면 구석의 비밀 관리자 버튼 & 관리자 대시보드 스타일 */
+        .admin-footer-link {
+            width: 100%;
+            max-width: 360px;
+            display: flex;
+            justify-content: flex-end;
+            padding-top: 6px;
+        }
+
+        .secret-admin-btn {
+            background: none;
+            border: none;
+            color: var(--sub);
+            font-size: 0.75rem;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.2s;
+            padding: 4px;
+        }
+        .secret-admin-btn:hover { opacity: 1; }
+
+        /* 관리자 대시보드 전용 레이아웃 */
+        #adminDashboard {
+            width: 100%;
+            max-width: 360px;
+            display: none;
+            text-align: left;
+            margin: auto 0;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .admin-stats-box {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .count {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .admin-section-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--sub);
+        }
+
+        .admin-list {
+            list-style: none;
+            max-height: 150px;
+            overflow-y: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            margin-bottom: 16px;
+            font-size: 0.85rem;
+        }
+
+        .admin-list li {
+            padding: 6px 4px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+        }
+        .admin-list li:last-child { border-bottom: none; }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body data-theme="light">
 
-    <header>
+    <!-- 상단 헤더 (학생용) -->
+    <header id="studentHeader">
         <div class="logo">FOCUS</div>
         <div class="util-btns">
             <button class="icon-btn" id="fontIncBtn" aria-label="글자 크기 크게">A+</button>
@@ -335,63 +414,98 @@
         </div>
     </header>
 
+    <!-- 상단 헤더 (관리자용) -->
+    <header id="adminHeader" class="hidden">
+        <div class="logo">🔒 선생님 대시보드</div>
+        <button class="ctrl-btn" id="backToHomeBtn" style="font-size: 0.8rem; padding: 6px 12px;">홈으로 가기</button>
+    </header>
+
     <main>
-        <div id="activeView">
-            <div class="status-text" id="statusLabel">집중 시간</div>
+        <!-- 학생용 메인 화면 -->
+        <div id="studentHome">
+            <div id="activeView">
+                <div class="status-text" id="statusLabel">집중 시간</div>
 
-            <div class="category-select" id="categorySelect" aria-label="집중 카테고리 선택">
-                <button class="cat-chip active" data-cat="공부">공부</button>
-                <button class="cat-chip" data-cat="코딩">코딩</button>
-                <button class="cat-chip" data-cat="독서">독서</button>
-                <button class="cat-chip" data-cat="업무">업무</button>
+                <div class="category-select" id="categorySelect" aria-label="집중 카테고리 선택">
+                    <button class="cat-chip active" data-cat="공부">공부</button>
+                    <button class="cat-chip" data-cat="코딩">코딩</button>
+                    <button class="cat-chip" data-cat="독서">독서</button>
+                    <button class="cat-chip" data-cat="업무">업무</button>
+                </div>
+
+                <div class="inline-settings" id="settingInputs">
+                    <span>공부 <input type="number" id="studyInput" value="25" min="1" max="180" aria-label="공부 시간 분">분</span>
+                    <span>·</span>
+                    <span>휴식 <input type="number" id="breakInput" value="5" min="1" max="60" aria-label="휴식 시간 분">분</span>
+                </div>
+
+                <div class="time-number" id="timeDisplay" aria-live="polite">25:00</div>
+
+                <div class="controls">
+                    <button class="ctrl-btn" id="resetBtn">초기화</button>
+                    <button class="ctrl-btn primary" id="startBtn">시작</button>
+                </div>
+
+                <div class="noise-control" aria-label="백색소음 선택">
+                    <span>백색소음:</span>
+                    <button class="noise-btn" id="rainNoiseBtn">빗소리</button>
+                    <button class="noise-btn" id="waveNoiseBtn">파도소리</button>
+                </div>
             </div>
 
-            <div class="inline-settings" id="settingInputs">
-                <span>공부 <input type="number" id="studyInput" value="25" min="1" max="180" aria-label="공부 시간 분">분</span>
-                <span>·</span>
-                <span>휴식 <input type="number" id="breakInput" value="5" min="1" max="60" aria-label="휴식 시간 분">분</span>
+            <div id="todoPanel" class="panel">
+                <div class="status-text" style="text-align: center;">할 일 목록</div>
+                <div class="input-group">
+                    <input type="text" id="todoInput" placeholder="오늘 집중할 작업을 적으세요..." aria-label="할 일 입력">
+                    <button id="addTodoBtn" aria-label="할 일 추가">추가</button>
+                </div>
+                <ul class="item-list" id="todoList"></ul>
             </div>
 
-            <div class="time-number" id="timeDisplay" aria-live="polite">25:00</div>
-
-            <div class="controls">
-                <button class="ctrl-btn" id="resetBtn">초기화</button>
-                <button class="ctrl-btn primary" id="startBtn">시작</button>
+            <div id="memoPanel" class="panel">
+                <div class="status-text" style="text-align: center;">잡생각 메모장</div>
+                <div class="input-group">
+                    <input type="text" id="memoInput" placeholder="생각을 적어두고 비우세요..." aria-label="잡생각 입력">
+                    <button id="addMemoBtn" aria-label="잡생각 기록">기록</button>
+                </div>
+                <ul class="item-list" id="memoList"></ul>
             </div>
 
-            <div class="noise-control" aria-label="백색소음 선택">
-                <span>백색소음:</span>
-                <button class="noise-btn" id="rainNoiseBtn">빗소리</button>
-                <button class="noise-btn" id="waveNoiseBtn">파도소리</button>
+            <div id="healingPanel" class="panel healing-area">
+                <div class="status-text">마음 쉼터</div>
+                <p class="healing-quote" id="quoteText">"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요."</p>
+                <button class="ctrl-btn primary" id="nextQuoteBtn" style="font-size: 0.85rem; opacity: 0.8;">다른 글귀 보기</button>
             </div>
         </div>
 
-        <div id="todoPanel" class="panel">
-            <div class="status-text" style="text-align: center;">할 일 목록</div>
-            <div class="input-group">
-                <input type="text" id="todoInput" placeholder="오늘 집중할 작업을 적으세요..." aria-label="할 일 입력">
-                <button id="addTodoBtn" aria-label="할 일 추가">추가</button>
+        <!-- 선생님 전용 관리자 대시보드 화면 -->
+        <div id="adminDashboard">
+            <div class="admin-stats-box">
+                <div class="stat-card">
+                    <div class="admin-section-title" style="margin-bottom:0;">전체 할 일 개수</div>
+                    <div class="count" id="adminTodoCount">0개</div>
+                </div>
+                <div class="stat-card">
+                    <div class="admin-section-title" style="margin-bottom:0;">잡생각 메모 개수</div>
+                    <div class="count" id="adminMemoCount">0개</div>
+                </div>
             </div>
-            <ul class="item-list" id="todoList"></ul>
-        </div>
 
-        <div id="memoPanel" class="panel">
-            <div class="status-text" style="text-align: center;">잡생각 메모장</div>
-            <div class="input-group">
-                <input type="text" id="memoInput" placeholder="생각을 적어두고 비우세요..." aria-label="잡생각 입력">
-                <button id="addMemoBtn" aria-label="잡생각 기록">기록</button>
-            </div>
-            <ul class="item-list" id="memoList"></ul>
-        </div>
+            <div class="admin-section-title">📌 최근 기록된 할 일</div>
+            <ul class="admin-list" id="adminRecentTodoList"></ul>
 
-        <div id="healingPanel" class="panel healing-area">
-            <div class="status-text">마음 쉼터</div>
-            <p class="healing-quote" id="quoteText">"조금 느리게 가도 괜찮아요. 중요한 건 멈추지 않고 너만의 속도로 나아간다는 거예요."</p>
-            <button class="ctrl-btn primary" id="nextQuoteBtn" style="font-size: 0.85rem; opacity: 0.8;">다른 글귀 보기</button>
+            <div class="admin-section-title">📝 전체 할 일 목록</div>
+            <ul class="admin-list" id="adminAllTodoList"></ul>
+
+            <div class="admin-section-title">💡 전체 잡생각 메모 목록</div>
+            <ul class="admin-list" id="adminAllMemoList"></ul>
+
+            <button class="ctrl-btn" id="clearDataBtn" style="width: 100%; background: #ff5252; color: #fff; border: none;">모든 기록 초기화</button>
         </div>
     </main>
 
-    <nav aria-label="하단 메뉴 탭">
+    <!-- 하단 메뉴 탭 (학생용) -->
+    <nav id="studentNav" aria-label="하단 메뉴 탭">
         <button class="nav-tab active" data-target="timer">타이머</button>
         <button class="nav-tab" data-target="stopwatch">초시계</button>
         <button class="nav-tab" data-target="todo">할 일</button>
@@ -399,7 +513,118 @@
         <button class="nav-tab" data-target="healing">쉼터</button>
     </nav>
 
+    <!-- 홈 화면 맨 아래 구석 비밀 관리자 버튼 -->
+    <div class="admin-footer-link" id="adminFooterLink">
+        <button class="secret-admin-btn" id="goToAdminBtn">🔐 관리자</button>
+    </div>
+
     <script>
+        // 라우팅 및 화면 전환 제어 (#admin 감지)
+        const studentHome = document.getElementById('studentHome');
+        const adminDashboard = document.getElementById('adminDashboard');
+        const studentHeader = document.getElementById('studentHeader');
+        const adminHeader = document.getElementById('adminHeader');
+        const studentNav = document.getElementById('studentNav');
+        const adminFooterLink = document.getElementById('adminFooterLink');
+
+        function checkRoute() {
+            if (window.location.hash === '#admin') {
+                showAdminView();
+            } else {
+                showStudentView();
+            }
+        }
+
+        function showAdminView() {
+            studentHome.classList.add('hidden');
+            studentHeader.classList.add('hidden');
+            studentNav.classList.add('hidden');
+            adminFooterLink.classList.add('hidden');
+
+            adminDashboard.style.display = 'block';
+            adminHeader.classList.remove('hidden');
+            loadAdminData();
+        }
+
+        function showStudentView() {
+            adminDashboard.style.display = 'none';
+            adminHeader.classList.add('hidden');
+
+            studentHome.classList.remove('hidden');
+            studentHeader.classList.remove('hidden');
+            studentNav.classList.remove('hidden');
+            adminFooterLink.classList.remove('hidden');
+        }
+
+        document.getElementById('goToAdminBtn').addEventListener('click', () => {
+            window.location.hash = '#admin';
+        });
+
+        document.getElementById('backToHomeBtn').addEventListener('click', () => {
+            window.location.hash = '';
+        });
+
+        window.addEventListener('hashchange', checkRoute);
+
+        // 관리자 대시보드 데이터 로드 함수
+        function loadAdminData() {
+            const todos = JSON.parse(localStorage.getItem('focus_todos') || '[]');
+            const memos = JSON.parse(localStorage.getItem('focus_memos') || '[]');
+
+            document.getElementById('adminTodoCount').textContent = `${todos.length}개`;
+            document.getElementById('adminMemoCount').textContent = `${memos.length}개`;
+
+            // 최근 기록 (최신순 최대 5개)
+            const recentTodoUl = document.getElementById('adminRecentTodoList');
+            recentTodoUl.innerHTML = '';
+            const recentTodos = [...todos].reverse().slice(0, 5);
+            if (recentTodos.length === 0) {
+                recentTodoUl.innerHTML = '<li>기록된 할 일이 없습니다.</li>';
+            } else {
+                recentTodos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${item.text}</span><span>${item.done ? '[완료]' : '[진행중]'}</span>`;
+                    recentTodoUl.appendChild(li);
+                });
+            }
+
+            // 전체 할 일 목록
+            const allTodoUl = document.getElementById('adminAllTodoList');
+            allTodoUl.innerHTML = '';
+            if (todos.length === 0) {
+                allTodoUl.innerHTML = '<li>등록된 할 일이 없습니다.</li>';
+            } else {
+                todos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${item.text}</span><span>${item.done ? '✓ 완료' : ''}</span>`;
+                    allTodoUl.appendChild(li);
+                });
+            }
+
+            // 전체 잡생각 메모 목록
+            const allMemoUl = document.getElementById('adminAllMemoList');
+            allMemoUl.innerHTML = '';
+            if (memos.length === 0) {
+                allMemoUl.innerHTML = '<li>등록된 메모가 없습니다.</li>';
+            } else {
+                memos.forEach(item => {
+                    const li = document.createElement('li');
+                    li.innerHTML = `<span>${item.text}</span>`;
+                    allMemoUl.appendChild(li);
+                });
+            }
+        }
+
+        // 전체 데이터 초기화 버튼
+        document.getElementById('clearDataBtn').addEventListener('click', () => {
+            if (confirm('모든 학생 기록을 초기화하시겠습니까?')) {
+                localStorage.removeItem('focus_todos');
+                localStorage.removeItem('focus_memos');
+                loadAdminData();
+                alert('초기화되었습니다.');
+            }
+        });
+
         // 글자 크기 조절 기능
         let currentScale = parseFloat(localStorage.getItem('focus_font_scale')) || 1.0;
         function updateFontScale(scale) {
@@ -727,6 +952,9 @@
             const rand = Math.floor(Math.random() * quotes.length);
             quoteText.textContent = quotes[rand];
         });
+
+        // 페이지 최초 로드 시 해시 체크
+        checkRoute();
     </script>
 </body>
 </html>
